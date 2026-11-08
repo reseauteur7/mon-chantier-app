@@ -9,8 +9,11 @@ export async function ensureUserProfile(user) {
     displayName: user.displayName || '',
     email: user.email || '',
     photoURL: user.photoURL || null,
-    updatedAt: serverTimestamp(),
   };
-  if (!existing.exists()) profile.createdAt = serverTimestamp();
+  if (existing.exists()) {
+    profile.updatedAt = serverTimestamp();
+  } else {
+    profile.createdAt = serverTimestamp();
+  }
   await setDoc(ref, profile, { merge: true });
 }
