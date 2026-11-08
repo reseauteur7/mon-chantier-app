@@ -25,7 +25,7 @@ Les photos ne sont pas encore reliées au formulaire de publication. Le module W
    firebase login
    firebase use mon-chantier-8fc9f
    firebase deploy --only firestore:rules,firestore:indexes
-   ```
+   `````
 6. Ne jamais committer `.env.local`, `mobile/.env`, clé Admin ou service-account.
 
 ## Lancer le Web
@@ -33,24 +33,24 @@ Les photos ne sont pas encore reliées au formulaire de publication. Le module W
 ```bash
 npm install
 npm run dev
-``
+`````
 Production:
 ```bash
 npm run build
 npm run preview
-``
+`````
 
 ## Lancer Android
 Dans `mobile/`:
 ```bash
 npm install
 npx expo start
-``
+`````
 Pour construire l'APK de test avec EAS:
 ```bash
 npx eas login
 npx eas build -p android --profile preview
-``
+`````
 Le profil `preview` est configuré pour produire un APK. Un compte EAS et une configuration Firebase valide sont nécessaires. La compilation n'est pas réputée réussie tant que le build EAS n'a pas terminé et que l'APK n'a pas été installé/testé sur un appareil.
 
 ## Règle de séparation avec GOLDOR
