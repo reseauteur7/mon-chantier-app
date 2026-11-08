@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "MON CHANTIER",
+    "slug": "mon-chantier-ci",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "monchantier",
+    "android": {
+      "package": "ci.monchantier.app",
+      "versionCode": 1,
+      "permissions": ["INTERNET"]
+    },
+    "ios": {
+      "bundleIdentifier": "ci.monchantier.app"
+    },
+    "extra": {
+      "eas": {
+        "projectId": ""
+      }
+    }
+  }
+}
