@@ -20,10 +20,13 @@ service cloud.firestore {
       allow create: if owns(uid) &&
         request.resource.data.keys().hasOnly(['displayName','email','photoURL','createdAt','phone','termsAccepted','termsVersion','termsAcceptedAt']) &&
         request.resource.data.keys().hasAll(['displayName','email','createdAt','termsAccepted','termsVersion','termsAcceptedAt']) &&
-        request.resource.data.email == request.auth.token.email &&\n        request.resource.data.termsAccepted == true && request.resource.data.termsVersion == '1.0' && request.resource.data.termsAcceptedAt is timestamp;
+        request.resource.data.email == request.auth.token.email &&
+        request.resource.data.termsAccepted == true && request.resource.data.termsVersion == '1.0' && request.resource.data.termsAcceptedAt is timestamp;
       allow update: if owns(uid) &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','photoURL','phone','updatedAt','termsAccepted','termsVersion','termsAcceptedAt']) &&
-        request.resource.data.email == resource.data.email &&\n        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['termsAccepted','termsVersion','termsAcceptedAt']) ||\n          (request.resource.data.termsAccepted == true && request.resource.data.termsVersion == '1.0' && request.resource.data.termsAcceptedAt is timestamp));
+        request.resource.data.email == resource.data.email &&
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['termsAccepted','termsVersion','termsAcceptedAt']) ||
+          (request.resource.data.termsAccepted == true && request.resource.data.termsVersion == '1.0' && request.resource.data.termsAcceptedAt is timestamp));
       allow delete: if false;
     }
     match /listings/{listingId} {
