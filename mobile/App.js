@@ -3,6 +3,7 @@ import { SafeAreaView, StatusBar, View, Text, TextInput, ScrollView, Pressable, 
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth, firebaseConfigured } from './firebase';
 import { getPublishedListings, publishListing } from './listings';
+import { ensureUserProfile } from './account';
 
 const categories = [{id:'chantier',label:'Chantiers',icon:'🏗️'},{id:'travaux',label:'Travaux & services',icon:'🛠️'},{id:'materiaux',label:'Matériaux',icon:'🧱'},{id:'pro',label:'Professionnels',icon:'👷'}];
 const demos = [
@@ -13,7 +14,7 @@ const demos = [
 export default function App(){
  const [user,setUser]=React.useState(null),[authReady,setAuthReady]=React.useState(false),[email,setEmail]=React.useState(''),[password,setPassword]=React.useState(''),[register,setRegister]=React.useState(false);
  const [search,setSearch]=React.useState(''),[category,setCategory]=React.useState('all'),[showForm,setShowForm]=React.useState(false),[title,setTitle]=React.useState(''),[city,setCity]=React.useState(''),[description,setDescription]=React.useState(''),[price,setPrice]=React.useState(''),[type,setType]=React.useState('chantier'),[notice,setNotice]=React.useState(''),[items,setItems]=React.useState(demos),[loading,setLoading]=React.useState(false);
- React.useEffect(()=>{if(!auth)return;return onAuthStateChanged(auth,u=>{setUser(u);setAuthReady(true);});},[]);
+ React.useEffect(()=>{if(!auth)return;return onAuthStateChanged(auth,async u=>{setUser(u);setAuthReady(true);if(u){try{await ensureUserProfile(u);}catch(e){setNotice(e.message||'Profil utilisateur non enregistré.');}}});},[]);
  const load=React.useCallback(async()=>{if(!firebaseConfigured)return;try{setLoading(true);setItems(await getPublishedListings(category));}catch(e){setNotice(e.message||'Chargement des annonces impossible.');}finally{setLoading(false);}},[category]);
  React.useEffect(()=>{load();},[load]);
  const filtered=items.filter(x=>(category==='all'||x.category===category)&&[x.title,x.location,x.description,x.category].join(' ').toLowerCase().includes(search.toLowerCase()));
