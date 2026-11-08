@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
 import { auth } from "./firebase";
 
 function requireAuth() {
@@ -18,4 +18,10 @@ export async function loginEmail(email, password) {
 }
 export async function logout() {
   await signOut(requireAuth());
+}
+
+export async function resetPassword(email) {
+  const value = email.trim();
+  if (!value) throw new Error('Saisissez votre adresse email pour recevoir le lien de réinitialisation.');
+  await sendPasswordResetEmail(requireAuth(), value);
 }
