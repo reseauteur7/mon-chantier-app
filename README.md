@@ -26,8 +26,12 @@ Chaque annonce est propre à MON CHANTIER et comprend, selon la catégorie :
 
 Les champs détaillés doivent être définis par catégorie dans le formulaire MON CHANTIER, sans réutiliser le formulaire GOLDOR.
 
-## État
-Le dépôt était vide lors de l'initialisation. Ce README pose le périmètre; il ne constitue pas encore une application compilable. La prochaine étape est d'ajouter le code de l'application et ses propres écrans de publication.
+## État actuel
+- Prototype Web React/Vite dans la racine.
+- Première application Android Expo dans `mobile/` avec `app.json`, `eas.json`, `App.js` et initialisation Firebase.
+- Firebase client modules Web et mobile sont préparés; les credentials ne sont pas committés.
+- Les écrans utilisent encore des annonces de démonstration. Authentification, publication persistante, téléversement de photos, tests et builds doivent encore être reliés/validés.
+- Package Android : `ci.monchantier.app`.
 ## Firebase (MON CHANTIER uniquement)
 
 Le client Firebase est initialisé dans `src/firebase.js`. Il lit les variables `VITE_FIREBASE_*` du fichier local `.env.local`. Ne placez jamais de clé Admin/service-account dans le frontend.
