@@ -1,5 +1,5 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
-import { auth } from "./firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, updateProfile, signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "./firebase";
 
 function requireAuth() {
   if (!auth) throw new Error("Firebase n’est pas configuré. Ajoutez les variables VITE_FIREBASE_* dans .env.local.");
@@ -24,4 +24,8 @@ export async function resetPassword(email) {
   const value = email.trim();
   if (!value) throw new Error('Saisissez votre adresse email pour recevoir le lien de réinitialisation.');
   await sendPasswordResetEmail(requireAuth(), value);
+}
+
+export async function loginGoogle() {
+  return (await signInWithPopup(requireAuth(), googleProvider)).user;
 }
