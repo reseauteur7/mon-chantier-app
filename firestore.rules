@@ -36,6 +36,17 @@ service cloud.firestore {
       allow read, create, delete: if owns(uid);
       allow update: if false;
     }
+    match /reports/{reportId} {
+      allow create: if signedIn() &&
+        request.resource.data.keys().hasOnly(['listingId','reporterId','reason','details','status','createdAt']) &&
+        request.resource.data.keys().hasAll(['listingId','reporterId','reason','details','status','createdAt']) &&
+        request.resource.data.reporterId == request.auth.uid &&
+        request.resource.data.listingId is string && request.resource.data.listingId.size() > 0 &&
+        request.resource.data.reason in ['fraud','inappropriate','spam','unsafe','other'] &&
+        request.resource.data.details is string && request.resource.data.details.size() <= 500 &&
+        request.resource.data.status == 'open' && request.resource.data.createdAt is timestamp;
+      allow read, update, delete: if false;
+    }
     match /listings/{listingId} {
       allow read: if resource.data.status == 'published' ||
         (signedIn() && resource.data.ownerId == request.auth.uid);
