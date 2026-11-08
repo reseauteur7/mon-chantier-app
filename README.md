@@ -1,45 +1,68 @@
 # MON CHANTIER
 
-Application indépendante de GOLDOR pour les annonces de chantiers, travaux, matériaux et prestations.
+Application indépendante de GOLDOR pour les annonces de chantiers, travaux, matériaux et professionnels du BTP en Côte d’Ivoire.
 
-## Règle de séparation
-- GOLDOR sert uniquement de référence technique pour les composants génériques éventuellement réutilisables.
-- Aucun formulaire de publication GOLDOR n'est repris.
-- MON CHANTIER possède ses propres publications, catégories, champs, images et règles de gestion.
-- Le dépôt GOLDOR ne doit pas être modifié dans le cadre de ce projet.
+## Fonctionnalités présentes dans le dépôt
+- Interface Web React/Vite et application Android Expo.
+- Connexion et création de compte par email/mot de passe avec Firebase Authentication.
+- Création et consultation d'annonces Firestore (chantier, travaux, matériaux, professionnels).
+- Profil utilisateur Firestore créé/actualisé après connexion.
+- Règles Firestore restrictives et index composites déclarés.
+- Configuration EAS pour produire un APK Android de prévisualisation.
 
-## Publication MON CHANTIER
-Chaque annonce est propre à MON CHANTIER et comprend, selon la catégorie :
-- catégorie et type d'annonce;
-- titre, description et photos;
-- localisation (ville/commune/quartier);
-- prix ou budget, unité et négociabilité;
-- coordonnées/contact du publieur;
-- statut de publication (brouillon, publiée, suspendue, clôturée);
-- date de création et de mise à jour.
+## État de préparation — transparence
+Le dépôt contient le code de base, mais une version **prête à utiliser par le public n'est pas encore certifiée**. Il reste à configurer les clients Firebase avec les valeurs du projet, activer Email/Mot de passe dans Firebase Authentication, déployer les règles et index Firestore, puis exécuter les tests réels Web/Android.
 
-### Catégories initiales
-- Chantier / projet de construction
-- Travaux et services BTP
-- Matériaux et équipements
-- Professionnels / entreprises
+Les photos ne sont pas encore reliées au formulaire de publication. Le module Web Supabase Storage est isolé, mais le bucket et ses politiques ne sont pas vérifiés et le module n'est pas intégré à la publication. Ne considérez donc pas l'ajout de photos comme disponible.
 
-Les champs détaillés doivent être définis par catégorie dans le formulaire MON CHANTIER, sans réutiliser le formulaire GOLDOR.
+## Configuration Firebase (MON CHANTIER uniquement)
+1. Dans Firebase Console, ouvrir le projet `mon-chantier-8fc9f`.
+2. Activer Authentication > Sign-in method > Email/Password.
+3. Créer une application Web et recopier les valeurs de configuration dans `.env.local` à partir de `.env.example`.
+4. Pour Android/Expo, recopier les valeurs dans `mobile/.env` à partir de `mobile/.env.example`.
+5. Déployer `firestore.rules` et `firestore.indexes.json` avec Firebase CLI depuis la racine du dépôt, après connexion au bon projet:
+   ```bash
+   firebase login
+   firebase use mon-chantier-8fc9f
+   firebase deploy --only firestore:rules,firestore:indexes
+   ```
+6. Ne jamais committer `.env.local`, `mobile/.env`, clé Admin ou service-account.
 
-## État actuel
-- Prototype Web React/Vite dans la racine.
-- Première application Android Expo dans `mobile/` avec `app.json`, `eas.json`, `App.js` et initialisation Firebase.
-- Firebase client modules Web et mobile sont préparés; les credentials ne sont pas committés.
-- Les écrans utilisent encore des annonces de démonstration. Authentification, publication persistante, téléversement de photos, tests et builds doivent encore être reliés/validés.
-- Package Android : `ci.monchantier.app`.
-## Firebase (MON CHANTIER uniquement)
+## Lancer le Web
+À la racine:
+```bash
+npm install
+npm run dev
+``
+Production:
+```bash
+npm run build
+npm run preview
+``
 
-Le client Firebase est initialisé dans `src/firebase.js`. Il lit les variables `VITE_FIREBASE_*` du fichier local `.env.local`. Ne placez jamais de clé Admin/service-account dans le frontend.
+## Lancer Android
+Dans `mobile/`:
+```bash
+npm install
+npx expo start
+``
+Pour construire l'APK de test avec EAS:
+```bash
+npx eas login
+npx eas build -p android --profile preview
+``
+Le profil `preview` est configuré pour produire un APK. Un compte EAS et une configuration Firebase valide sont nécessaires. La compilation n'est pas réputée réussie tant que le build EAS n'a pas terminé et que l'APK n'a pas été installé/testé sur un appareil.
 
-1. Dans Firebase Console > Paramètres du projet > Général > Vos applications, créez une application Web.
-2. Copiez la configuration Web dans `.env.local` (à partir de `.env.example`).
-3. Activez Authentication > Fournisseurs > E-mail/Mot de passe et Google.
-4. Les règles de départ sont dans `firestore.rules`. Elles sont volontairement restrictives et doivent être adaptées/testées avant d'ouvrir la lecture publique des annonces.
-5. Le dépôt n'inclut pas de secrets. `.env.local` est ignoré par Git.
+## Règle de séparation avec GOLDOR
+- MON CHANTIER est un dépôt et une application distincts.
+- Aucun changement ne doit être effectué dans le dépôt GOLDOR.
+- Les annonces, catégories, champs et règles MON CHANTIER lui sont propres.
 
-La configuration n'est pas encore reliée à l'interface de connexion/publication; ces écrans et les opérations Firestore seront ajoutés ensuite.
+## Prochaines étapes avant diffusion
+1. Renseigner les configurations Firebase Web et Android.
+2. Déployer les règles et index Firestore.
+3. Vérifier création de compte, connexion, profil, publication, consultation et suppression d'annonce sur Web et Android.
+4. Intégrer et tester l'upload photo (bucket et règles sûres).
+5. Générer et tester l'APK.
+6. Déployer le Web sur un hébergeur et vérifier l'URL publique.
+7. Ajouter gestion des erreurs, contact annonceur, politique de confidentialité et conditions d'utilisation avant ouverture au public.
