@@ -13,5 +13,9 @@ export async function ensureUserProfile(user) {
 
 export async function recordTermsAcceptance(user) {
   if (!db || !user?.uid) throw new Error('Profil Firebase indisponible pour enregistrer l’acceptation des CGU.');
-  await setDoc(doc(db, 'users', user.uid), { termsAccepted: true, termsVersion: '1.0', termsAcceptedAt: serverTimestamp() }, { merge: true });
+  const ref = doc(db, 'users', user.uid);
+  const existing = await getDoc(ref);
+  const acceptance = { termsAccepted: true, termsVersion: '1.0', termsAcceptedAt: serverTimestamp() };
+  if (existing.exists()) await setDoc(ref, { ...acceptance, updatedAt: serverTimestamp() }, { merge: true });
+  else await setDoc(ref, { displayName: user.displayName || '', email: user.email || '', photoURL: user.photoURL || null, createdAt: serverTimestamp(), ...acceptance }, { merge: true });
 }
