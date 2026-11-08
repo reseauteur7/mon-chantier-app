@@ -32,6 +32,10 @@ service cloud.firestore {
           (request.resource.data.termsAccepted == true && request.resource.data.termsVersion == '1.0' && request.resource.data.termsAcceptedAt is timestamp));
       allow delete: if false;
     }
+    match /users/{uid}/favorites/{listingId} {
+      allow read, create, delete: if owns(uid);
+      allow update: if false;
+    }
     match /listings/{listingId} {
       allow read: if resource.data.status == 'published' ||
         (signedIn() && resource.data.ownerId == request.auth.uid);
