@@ -4,28 +4,28 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function owns(uid) { return signedIn() && request.auth.uid == uid; }
     function validListing(data) {
-      return data.keys().hasOnly([
-        'ownerId', 'category', 'title', 'description', 'location',
-        'price', 'status', 'createdAt', 'updatedAt'
-      ]) &&
-      data.ownerId is string && data.ownerId.size() > 0 &&
-      data.category in ['chantier', 'travaux', 'materiaux', 'pro'] &&
-      data.title is string && data.title.size() > 0 && data.title.size() <= 100 &&
-      data.description is string && data.description.size() > 0 && data.description.size() <= 1200 &&
-      data.location is string && data.location.size() > 0 && data.location.size() <= 160 &&
-      data.price is string && data.price.size() <= 100 &&
-      data.status in ['published', 'draft', 'suspended', 'closed'];
+      return data.keys().hasAll(['ownerId','category','title','description','location','price','status','createdAt','updatedAt']) &&
+        data.keys().hasOnly(['ownerId','category','title','description','location','price','status','createdAt','updatedAt']) &&
+        data.ownerId is string && data.ownerId.size() > 0 &&
+        data.category in ['chantier','travaux','materiaux','pro'] &&
+        data.title is string && data.title.size() > 0 && data.title.size() <= 100 &&
+        data.description is string && data.description.size() > 0 && data.description.size() <= 1200 &&
+        data.location is string && data.location.size() > 0 && data.location.size() <= 160 &&
+        data.price is string && data.price.size() <= 100 &&
+        data.status in ['published','draft','suspended','closed'] &&
+        data.createdAt is timestamp && data.updatedAt is timestamp;
     }
-
     match /users/{uid} {
       allow read: if owns(uid);
       allow create: if owns(uid) &&
-        request.resource.data.keys().hasOnly(['displayName', 'email', 'photoURL', 'createdAt']);
+        request.resource.data.keys().hasOnly(['displayName','email','photoURL','createdAt','phone']) &&
+        request.resource.data.keys().hasAll(['displayName','email','createdAt']) &&
+        request.resource.data.email == request.auth.token.email;
       allow update: if owns(uid) &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL', 'phone', 'updatedAt']);
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','photoURL','phone','updatedAt']) &&
+        request.resource.data.email == resource.data.email;
       allow delete: if false;
     }
-
     match /listings/{listingId} {
       allow read: if resource.data.status == 'published' ||
         (signedIn() && resource.data.ownerId == request.auth.uid);
@@ -35,10 +35,10 @@ service cloud.firestore {
       allow update: if signedIn() &&
         resource.data.ownerId == request.auth.uid &&
         request.resource.data.ownerId == resource.data.ownerId &&
+        request.resource.data.createdAt == resource.data.createdAt &&
         validListing(request.resource.data);
       allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
     }
-
     match /{document=**} { allow read, write: if false; }
   }
 }
