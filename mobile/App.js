@@ -3,7 +3,7 @@ import { SafeAreaView, StatusBar, View, Text, TextInput, ScrollView, Pressable, 
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from 'firebase/auth';
 import { auth, firebaseConfigured } from './firebase';
 import { getPublishedListings, publishListing, getMyListings, updateMyListing, removeMyListing } from './listings';
-import { ensureUserProfile } from './account';
+import { ensureUserProfile, recordTermsAcceptance } from './account';
 
 const categories = [{id:'chantier',label:'Chantiers',icon:'🏗️'},{id:'travaux',label:'Travaux & services',icon:'🛠️'},{id:'materiaux',label:'Matériaux',icon:'🧱'},{id:'pro',label:'Professionnels',icon:'👷'}];
 export default function App(){
@@ -15,7 +15,7 @@ export default function App(){
  const loadMine=React.useCallback(async()=>{if(!user?.uid)return;try{setMine(await getMyListings(user.uid));}catch(e){setNotice(e.message||'Chargement de vos annonces impossible.');}},[user]);
  React.useEffect(()=>{loadMine();},[loadMine]);
  const filtered=items.filter(x=>(category==='all'||x.category===category)&&[x.title,x.location,x.description,x.category].join(' ').toLowerCase().includes(search.toLowerCase()));
- async function authAction(){try{if(!auth)throw new Error('Firebase non configuré.');if(!email.trim()||!password)throw new Error('Saisissez votre email et mot de passe.');register&&!cguAccepted?(()=>{throw new Error('Veuillez lire et accepter les CGU pour créer votre compte.');})():register?await createUserWithEmailAndPassword(auth,email.trim(),password):await signInWithEmailAndPassword(auth,email.trim(),password);setNotice('Connexion réussie.');}catch(e){setNotice(e.message);}}
+ async function authAction(){try{if(!auth)throw new Error('Firebase non configuré.');if(!email.trim()||!password)throw new Error('Saisissez votre email et mot de passe.');register&&!cguAccepted?(()=>{throw new Error('Veuillez lire et accepter les CGU pour créer votre compte.');})():register?await (async()=>{const cred=await createUserWithEmailAndPassword(auth,email.trim(),password);await recordTermsAcceptance(cred.user);})():await signInWithEmailAndPassword(auth,email.trim(),password);setNotice('Connexion réussie.');}catch(e){setNotice(e.message);}}
  async function submit(){try{if(!user)throw new Error('Connectez-vous pour publier.');if(editId)await updateMyListing(editId,user.uid,{category:type,title,location:city,description,price});else await publishListing(user,{category:type,title,location:city,description,price});setTitle('');setCity('');setDescription('');setPrice('');setShowForm(false);setEditId(null);setNotice(editId?'Annonce modifiée.':'Annonce publiée.');await load();await loadMine();}catch(e){setNotice(e.message||'Publication impossible.');}}
  return <SafeAreaView style={s.safe}><StatusBar barStyle="dark-content"/><ScrollView contentContainerStyle={s.page}>
  <View style={s.header}><View style={s.brandIcon}><Text style={s.brandIconText}>⌂</Text></View><View><Text style={s.brand}>MON<Text style={{color:'#91a83d'}}>CHANTIER</Text></Text><Text style={s.tagline}>LE BTP EN UN SEUL ENDROIT</Text></View><Pressable style={s.publish} onPress={()=>setShowForm(v=>!v)}><Text style={s.publishText}>＋ Publier</Text></Pressable></View>
